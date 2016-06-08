@@ -1,0 +1,81 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
+
+    defaultConfig {
+        applicationId "com.dameiren.app1"
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false;
+    }
+
+    dexOptions {
+        jumboMode = true
+        incremental true
+        javaMaxHeapSize "4g"
+
+    }
+    productFlavors {
+
+        dmr_test {
+            manifestPlaceholders = [CHANNEL_NAME: "dmr_test"]
+        }
+
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                // 输出apk名称为：我是大美人_v[版本号]_[时间]_[渠道].apk
+                def fileName = "我是项目_v${defaultConfig.versionName}_${releaseTime()}_${variant.productFlavors[0].name}.apk"
+
+                output.outputFile = new File(outputFile.parent, fileName)
+            }
+        }
+    }
+}
+
+def releaseTime() {
+
+    return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC"))
+}
+
+repositories {//数据库 TBUser，manifest
+    mavenCentral()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:23.0.1'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+//    compile 'org.greenrobot:greendao:2.2.1'
+    compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'//数据库
+    compile 'com.google.code.gson:gson:2.5'
+    compile 'org.greenrobot:eventbus:3.0.0'
+//    compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.makeramen:roundedimageview:2.2.1'
+    compile project(':lib-okhttputils')
+    compile project(':lib-common')
+    compile project(':lib-pullToRefresh')
+    compile project(':lib-indicator')
+    compile project(':lib-superadapter')
+    compile 'com.android.support:multidex:1.0.1'
+}
